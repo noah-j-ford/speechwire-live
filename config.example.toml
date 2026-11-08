@@ -1,0 +1,25 @@
+# Copy to config.toml (which is git-ignored) and fill in.
+# Any value can also be set with an environment variable named SPEECHWIRE_<KEY>,
+# for example SPEECHWIRE_PASSWORD.
+
+username = ""
+password = ""
+
+# Leave empty to pick today's tournament from the Speechwire calendar at startup.
+tournament_id = ""
+
+# Used in the exported .xlsx file name and sheet name.
+tournament_name = "Tournament"
+
+# Only keep rows for this team. Leave empty for all teams.
+team_filter = ""
+
+# Speechwire season used by the calendar lookup (19 = 2026, 18 = 2025).
+season_id = 19
+
+# Seconds between scrapes (measured after a scrape finishes). Minimum 5.
+poll_seconds = 120
+
+# Use "0.0.0.0" to let other devices on the network open the dashboard.
+host = "127.0.0.1"
+port = 8080
