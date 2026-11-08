@@ -7,3 +7,18 @@ This is a (constant work in progress) utility app to use on forensics tournament
 ^ okay so the way you should do that is just running it through a logistic* regression (or ologit? Break can be binary (1-4 are all "1") or it could be a Champs probability (logit) and break probability (ologit), or a sequence of logits (champs - honors - merit- consi)) that regresses on "Cume after round 1/2/3", entry size, event*, team*** (could also be binary vars for LE/MN/LSW/LSE/etc, if any of those actually add to the model)
 
 [ ] Other idea: small global indicators for extemp blasted, rounds blasted, ballots released, etc.
+
+Judge Comment Length:	https://manage.speechwire.com/tabroom/judges-comment-lengths.php
+Landing Page:	https://manage.speechwire.com/tabroom/index.php
+Tab Sheets Menu:	https://manage.speechwire.com/tabroom/tab-menu.php
+Team Sweeps Page:	https://manage.speechwire.com/tabroom/tab-team.php?sstyleid=0&Submit=View+team+sweeps
+Triathlon:	https://manage.speechwire.com/tabroom/tab-indivsweeps.php?sstyleid=0&Submit=View+individual+sweeps
+"Ballots by Timeslot: 
+(sorted by status)
+no clue if selslotid is consistent, but PLVS had 7=finals, R1=9, R2=5, R3=14"	https://manage.speechwire.com/tabroom/ballots-byslot.php?selslotid=7&sortmode=status
+Overtimes:	https://manage.speechwire.com/tabroom/eballots-overtimedq.php
+Printing Center:	https://manage.speechwire.com/tabroom/printing-menu.php
+Print Sections:	https://manage.speechwire.com/tabroom/schem-horiz-print.php?viewgroupingid=0&dispround=0&Submit=Print+schematics
+Print Results:	https://manage.speechwire.com/tabroom/tab-grouping-print.php?groupingid=0&sortby=prelimresults&divisionrestrict=0&compsperpage=200&Submit=Print+tab+sheet
+Team Entry Counts:	https://manage.speechwire.com/tabroom/register-spread-view.php
+<img width="441" height="436" alt="image" src="https://github.com/user-attachments/assets/849f7572-8a13-4e1f-8831-993542dae84a" />
