@@ -4,33 +4,10 @@ Roadmap and open tasks. Architecture and conventions are in [README.md](README.m
 
 Each dataset below follows the same pipeline (scraper → cleaner → poller → view), so every feature is "one scraper, one cleaner, one view, registered in `datasets.py`."
 
-## Done (covered by unit tests)
-
-- [x] Client interface and live client (login and page fetching)
-- [x] Performance-times scraper and cleaner, moved into their own modules
-- [x] Skip event IDs that returned nothing, with a periodic full rescan
-- [x] Poller that keeps the last good snapshot, re-logs in after failures, and enforces a minimum interval
-- [x] `.xlsx` export with the original column formatting
-- [x] Config from `config.toml` or `SPEECHWIRE_*` environment variables (credentials out of source)
-- [x] `pyproject.toml`, `.gitignore`, `config.example.toml`
-
-## Needs verification
-
-These are implemented but have not been run for real.
-
-- [ ] Run the NiceGUI dashboard and confirm the table renders (the UI modules were only checked with a mocked NiceGUI)
-- [ ] Confirm sort, filters, and column widths survive a data refresh (relies on AG Grid's `setGridOption('rowData', ...)` through NiceGUI's `run_grid_method`)
-- [ ] Confirm columns auto-size on first load
-- [ ] Log in and scrape a real tournament through the new client and scraper
-- [ ] Confirm the file is saved on shutdown (Ctrl+C) and from the Save .xlsx button
-- [ ] Open the dashboard from a second device with `host = "0.0.0.0"`
-- [ ] Confirm `pip install -e .` pulls a NiceGUI version that supports these calls
-
 ## Housekeeping
 
 - [ ] Add your existing `standardization.py` to `src/speechwire_live/cleaning/`
 - [ ] Save real Speechwire HTML pages as test fixtures (current tests use small hand-written pages)
-- [ ] Make sure no credentials exist anywhere in the Git history before the repository is pushed to GitHub (rotate them if they ever did)
 - [ ] Add a license
 
 ## Roadmap
@@ -68,3 +45,25 @@ Design notes:
 - [ ] Scrape the team sweepstakes results page
 - [ ] Display standings with the same live-polling behavior as item 4
 - [ ] Highlight rank changes between polls
+
+## Needs verification
+
+These are implemented but have not been run for real.
+
+- [ ] Run the NiceGUI dashboard and confirm the table renders (the UI modules were only checked with a mocked NiceGUI)
+- [ ] Confirm sort, filters, and column widths survive a data refresh (relies on AG Grid's `setGridOption('rowData', ...)` through NiceGUI's `run_grid_method`)
+- [ ] Confirm columns auto-size on first load
+- [ ] Log in and scrape a real tournament through the new client and scraper
+- [ ] Confirm the file is saved on shutdown (Ctrl+C) and from the Save .xlsx button
+- [ ] Open the dashboard from a second device with `host = "0.0.0.0"`
+- [ ] Confirm `pip install -e .` pulls a NiceGUI version that supports these calls
+
+## Done (covered by unit tests)
+
+- [x] Client interface and live client (login and page fetching)
+- [x] Performance-times scraper and cleaner, moved into their own modules
+- [x] Skip event IDs that returned nothing, with a periodic full rescan
+- [x] Poller that keeps the last good snapshot, re-logs in after failures, and enforces a minimum interval
+- [x] `.xlsx` export with the original column formatting
+- [x] Config from `config.toml` or `SPEECHWIRE_*` environment variables (credentials out of source)
+- [x] `pyproject.toml`, `.gitignore`, `config.example.toml`
