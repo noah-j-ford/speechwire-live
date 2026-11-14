@@ -1,0 +1,30 @@
+# Copy to config.toml (which is git-ignored) to change defaults.
+# Any value can also be set with an environment variable named SPEECHWIRE_<KEY>.
+#
+# By default none of the first four settings are needed: the app asks you to pick a
+# tournament and type your username and password in the browser. Setting one of them
+# skips that step.
+
+# Skips the tournament picker.
+tournament_id = ""
+
+# Display and file name for the tournament given by tournament_id.
+tournament_name = ""
+
+# Skip the login form. Credentials typed into the form are never written to disk;
+# storing them here is optional.
+username = ""
+password = ""
+
+# Only keep rows for this team. Leave empty for all teams.
+team_filter = ""
+
+# Speechwire season used by the tournament picker (19 = 2026, 18 = 2025).
+season_id = 19
+
+# Seconds between scrapes (measured after a scrape finishes). Minimum 5.
+poll_seconds = 120
+
+# Use "0.0.0.0" to let other devices on the network open the dashboard.
+host = "127.0.0.1"
+port = 8080
