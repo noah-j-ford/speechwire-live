@@ -21,10 +21,11 @@ Each dataset below follows the same pipeline (scraper → cleaner → poller →
 
 These are implemented but have not been run for real.
 
-- [ ] Run the NiceGUI dashboard and confirm the table renders (the UI modules were only checked with a mocked NiceGUI)
+- [ ] Verify the dashboard against a real tournament (sample UI snapshots have been rendered; live login and polling remain unverified)
 - [ ] Confirm sort, filters, and column widths survive a data refresh (relies on AG Grid's `setGridOption('rowData', ...)` through NiceGUI's `run_grid_method`)
 - [ ] Confirm columns auto-size on first load
 - [ ] Balloting scrape against real pages: slot IDs 1 to 29 are probed, the table is at `/html/body/table`, and its header cells read Section, Rm, Judge, Status (unit tests use hand-written pages)
+- [ ] Results scrape against a real page: confirm `ddprint` tables and the event name in the second span of the preceding paragraph
 - [ ] What Speechwire returns for a slot ID that does not exist (assumed: a page with no table at `/html/body/table`)
 - [ ] Whether the ballot pages say which round and time a slot is. Tables are labeled "Slot N" plus any short text found outside the table, which may be empty or noisy.
 - [ ] `/balloting` rendering: separate tables, the status colors, and the table height (grid auto-height)
@@ -35,11 +36,11 @@ These are implemented but have not been run for real.
 - [ ] Confirm the file is saved on shutdown (Ctrl+C) and from the Save .xlsx button
 - [ ] Open the dashboard from a second device with `host = "0.0.0.0"`
 - [ ] Confirm `pip install -e .` pulls a NiceGUI version that supports these calls
-- [ ] Landing page, navigation bar, `/times`, and the placeholder pages render and link correctly (only checked against a mocked NiceGUI, so layout is unseen, including the table height under the new toolbar)
+- [ ] Verify landing page, navigation, `/times`, and placeholder pages in a live run (sample UI rendering has been checked; live tournament interaction remains unverified)
 
 ## Housekeeping
 
-- [ ] Add your existing `standardization.py` to `src/speechwire_live/cleaning/`
+- [x] Include the shared `standardization.py` in `src/speechwire_live/cleaning/`
 - [ ] Save real Speechwire HTML pages as test fixtures (current tests use small hand-written pages)
 - [ ] Make sure no credentials exist anywhere in the Git history before the repository is pushed to GitHub (rotate them if they ever did)
 - [ ] Add a license
@@ -72,14 +73,16 @@ Design notes:
 - [ ] Controls for the simulation: speed multiplier, jump to round, pause/reset
 
 ### 4. Live "Print Results" view `major`
-- [ ] Scrape the print results page
-- [ ] Replace the placeholder at `/results` with the real view
-- [ ] Display tournament ranks as they come in
-- [ ] Constant polling, no manual refresh needed
+- [x] Scrape the print results page (fixture-tested)
+- [x] Replace the placeholder at `/results` with the real view (sample snapshot rendered)
+- [x] Display tournament ranks as they come in
+- [x] Constant polling, no manual refresh needed
+- [x] Compact results formatting: centered headers and cells, wrapped multiword headers, compact P1/P2/P3 columns, bold result column, and omission of the duplicated header row
 - [ ] Highlight rows that changed since the last poll
 
 ### 5. Live team sweepstakes view `major`
-- [ ] Scrape the team sweepstakes results page
-- [ ] Replace the placeholder at `/sweepstakes` with the real view
-- [ ] Display standings with the same live-polling behavior as item 4
+- [x] Scrape the team sweepstakes results page (fixture-tested; real page still needs confirmation)
+- [x] Replace the placeholder at `/sweepstakes` with the compact standings table (sample snapshot rendered)
+- [x] Center table headers and provide sorting without filtering
+- [ ] Display standings with the same live-polling behavior as item 4 (built; awaiting refresh verification)
 - [ ] Highlight rank changes between polls

@@ -49,6 +49,7 @@ The owner is an expert in Python but does not write JavaScript or CSS and cannot
 - Describe UI changes in terms of what the user sees and does, not in terms of framework internals.
 - Do not change established layouts, styling, dimensions, defaults, or interaction patterns unless asked. No decorative animations or notifications.
 - Views receive data only from poller snapshots. They never fetch or scrape.
+- Add each new view as its own page at its own URL, linked from the shared navigation. Do not add views as tabs or panels inside an existing page. Per-viewer state (sort, filters, which page is open) stays in the browser and is never stored on the shared session. Register a new view by adding its builder to `BUILDERS` in `ui/app.py` and setting `built=True` for its entry in `ui/pages.py`.
 - Verify UI changes by running the app. When possible, also load the page in a headless browser and check a screenshot. If you could not run the UI, say so.
 
 ## Architecture rules
@@ -59,7 +60,7 @@ The full description is in README.md. The rules that must not be broken:
 - Data moves from the poller to the UI only as snapshots that are never mutated after publishing.
 - A failed or empty scrape never replaces a good snapshot.
 - Parsers and cleaners are pure functions and are tested without the network.
-- Credentials never appear in source, tests, fixtures, logs, or commits.
+- Credentials never appear in source, tests, fixtures, logs, or commits. Credentials typed into the UI stay in memory only and are never written to disk, logged, or placed in a snapshot.
 - Every new Speechwire dataset follows the same pipeline: scraper, cleaner, view, registered as a `Dataset` in `datasets.py`.
 
 ## Verification

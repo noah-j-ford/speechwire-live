@@ -23,11 +23,11 @@ Speechwire shows tournament data one page at a time. Performance times, for exam
 
 ## Status
 
-Early development. The performance-times dashboard is implemented and its non-UI logic is unit-tested, but the web interface has not yet been run against a real tournament. Planned work and open verification items are in [TODO.md](TODO.md). Rules for AI coding agents working on this repo are in [AGENTS.md](AGENTS.md).
+Early development. The performance-times, balloting, print-results, and team-sweepstakes views are implemented, and their non-UI logic is unit-tested. The web interface and scrapers have not yet been verified against a real tournament. Planned work and open verification items are in [TODO.md](TODO.md). Rules for AI coding agents working on this repo are in [AGENTS.md](AGENTS.md).
 
 ## UI approach
 
-The interface is a local web app built with [NiceGUI](https://nicegui.io), so every page is written in Python. Tables use AG Grid (bundled with NiceGUI), which provides sorting, per-column filters, and resizable columns without custom code. There is no JavaScript or CSS file in this repository, no npm, and no build step. The one exception is a one-line expression in `ui/balloting_view.py` that tells the grid to use the status colors Python computed for each row. Because the dashboard is served over HTTP, other devices on the network can open it when `host` is set to `0.0.0.0` in the config.
+The interface is a local web app built with [NiceGUI](https://nicegui.io), so every page is written in Python. Tables use AG Grid (bundled with NiceGUI), which provides sorting and resizable columns, with per-column filtering where applicable. The app applies Tahoma across the interface and centers table headers through Python-defined UI settings; there is no standalone JavaScript or CSS file, npm, or build step. A short grid expression in `ui/balloting_view.py` applies the status colors Python computed for each row. Because the dashboard is served over HTTP, other devices on the network can open it when `host` is set to `0.0.0.0` in the config.
 
 ## Architecture
 
@@ -57,9 +57,9 @@ These keep every feature consistent. New code follows them unless there is a str
 4. **Keep the last good data.** A failed or empty scrape never replaces a good snapshot. An empty result counts as a failure. A failing dataset does not stop the others. Errors are shown in the status line.
 5. **Polite polling.** The interval is measured from the end of a scrape, with a minimum floor. Event IDs that returned nothing are skipped on later polls, with a periodic full rescan so late-starting events are still found.
 6. **Schema in one place.** Each `Dataset` declares its columns once. The UI and the export both read from that declaration.
-7. **Shared table behavior.** Every table view supports sorting, per-column filtering, and resizable columns, and keeps the user's sort, filters, and column widths across refreshes by replacing only the row data.
+7. **Shared table behavior.** Table views support sorting and resizable columns, and keep the user's sort and column widths across refreshes by replacing only the row data. Results also support per-column filtering; team sweepstakes is intentionally sort-only.
 8. **Python-only UI.** Interface code uses NiceGUI components and passes AG Grid options as Python dicts. See AGENTS.md for the rules on the rare cases that need a JavaScript snippet.
-9. **One URL per view.** Each view is its own page (for example `/times`, `/results`, `/sweepstakes`) with a shared navigation bar, so people can bookmark a view or keep different views open on different devices at once. Per viewer: sort, filters, column widths, and which page is open. Shared by everyone: the data (one poller feeds every viewer, so extra viewers add no load on Speechwire), the refresh interval, and the selected tournament and login. `/` is a landing page with a button for each view, `/times` and `/balloting` are built, and `/results` and `/sweepstakes` are placeholders. To add a view: write its builder, add it to `BUILDERS` in `ui/app.py`, and set `built=True` for its entry in `ui/pages.py`.
+9. **One URL per view.** Each view is its own page (for example `/times`, `/results`, `/sweepstakes`) with a shared navigation bar, so people can bookmark a view or keep different views open on different devices at once. Per viewer: sort, filters, column widths, and which page is open. Shared by everyone: the data (one poller feeds every viewer, so extra viewers add no load on Speechwire), the refresh interval, and the selected tournament and login. `/` is a landing page with a button for each view; `/times`, `/balloting`, `/results`, and `/sweepstakes` are built. To add a view: write its builder, add it to `BUILDERS` in `ui/app.py`, and set `built=True` for its entry in `ui/pages.py`.
 10. **Configuration, not constants.** Defaults, polling settings, and optional presets for the tournament and login come from `config.toml` or `SPEECHWIRE_*` environment variables. Credentials typed into the login form are kept in memory only. Nothing sensitive is committed.
 11. **Tests use fixtures.** Parsers and cleaners are tested without the network.
 
@@ -83,10 +83,13 @@ speechwire-live/
 │   │   └── tournament_lookup.py   # today's tournaments from the Speechwire calendar
 │   ├── scrapers/
 │   │   ├── times.py           # performance times
-│   │   └── balloting.py       # ballot status tables (planned: print results, sweepstakes)
+│   │   ├── balloting.py       # ballot status tables
+│   │   ├── results.py         # print results by event
+│   │   └── sweepstakes.py     # team sweepstakes standings
 │   ├── cleaning/
-│   │   ├── standardization.py # Standardizer class (not included; add your existing file here)
-│   │   └── times.py
+│   │   ├── standardization.py # shared Standardizer class
+│   │   ├── times.py
+│   │   └── sweepstakes.py
 │   ├── polling/
 │   │   ├── snapshot.py        # Dataset and Snapshot
 │   │   └── poller.py
@@ -98,6 +101,8 @@ speechwire-live/
 │   │   ├── landing_view.py    # home page with a button for each view
 │   │   ├── times_view.py      # the times page: toolbar and table
 │   │   ├── balloting_view.py  # the ballot status page: one table per round
+│   │   ├── results_view.py    # print results: one table per event
+│   │   ├── sweepstakes_view.py # team sweepstakes standings
 │   │   ├── ballot_rows.py     # status colors and per-round row grouping
 │   │   ├── placeholder_view.py    # stand-in for views that are not built yet
 │   │   ├── table_view.py      # shared AG Grid table
@@ -122,6 +127,14 @@ The `/balloting` page shows one separate table per slot, in slot ID order. A `St
 
 A slot that has had a table and then returns none is treated as a failed fetch, so the previous data stays on screen.
 
+## Results dataset
+
+Each `ddprint` table on the print-results page is stored with its event name, column headings, and rows. The `/results` page shows each table under a centered event heading and refreshes through the poller. Display formatting centers headers and cells, wraps known multiword result headings onto two lines, labels preliminary rank columns `P1`, `P2`, and `P3` as available, keeps those columns compact, and bolds the preliminary or final result column. A repeated first data row that duplicates the column headings is omitted from display. Tables remain sortable and filterable.
+
+## Team sweepstakes dataset
+
+The single `ddprint` table on the team print page is stored with its column headings and rows. The `/sweepstakes` page displays the standings in a centered, compact, sortable table and refreshes through the poller. Filtering is disabled for this table.
+
 ## Notes on Speechwire
 
 Observed behavior the code depends on:
@@ -132,6 +145,8 @@ Observed behavior the code depends on:
 - Rounds are `1`, `2`, `3`, and `F`.
 - The tournament picker reads the public calendar at `postings.speechwire.com/p-calendar.php` and lists tournaments dated today.
 - Ballot status tables are at `ballots-byslot.php?selslotid=<id>&sortmode=status`, one page per round, with the table at `/html/body/table` and the columns Section, Rm, Judge, Status. Slot IDs are small integers (under 30, as far as observed) that do not follow the round order, so the scraper probes 1 to 29.
+- Print results are at `tab-grouping-print.php?groupingid=0&sortby=prelimresults&divisionrestrict=0&compsperpage=200&Submit=Print+tab+sheet`. Each result table has the `ddprint` class; its preceding paragraph has the tournament name in its first span and the event name in its second span.
+- Team sweepstakes are at `tab-team-print.php?sstyleid=0&Submit=Print+sweepstakes`. The standings are in a single `ddprint` table.
 
 ## Setup and running
 
@@ -142,8 +157,6 @@ python -m venv .venv
 .venv\Scripts\activate          # macOS/Linux: source .venv/bin/activate
 pip install -e .
 ```
-
-Copy your existing `standardization.py` (the file containing the `Standardizer` class) to `src/speechwire_live/cleaning/standardization.py`.
 
 Start the app:
 
@@ -170,4 +183,4 @@ The latest data is saved as `{tournament_name} {HH-MM} Times.xlsx` in the workin
 python -m unittest discover -s tests
 ```
 
-The tests need `standardization.py` in place because the cleaning module imports it.
+The shared `Standardizer` implementation is included at `src/speechwire_live/cleaning/standardization.py`.

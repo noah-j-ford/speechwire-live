@@ -21,20 +21,20 @@ def _build_nav_header(session: Session, header, active: PageInfo):
         session.end()
 
     with header:
-        ui.label(session.tournament.name).classes("text-lg font-medium")
+        ui.label(session.tournament.name).classes("text-sm font-medium")
         for page in (HOME, *FEATURES):
-            button = ui.button(page.title).props(f"flat no-caps href={page.path}")
+            button = ui.button(page.title).props(f"dense flat no-caps href={page.path}")
             if page == active:
                 button.classes("bg-slate-600")
         ui.space()
-        status = ui.label().classes("text-sm text-slate-300")
-        ui.button("Switch tournament", on_click=switch_tournament).props("flat")
+        status = ui.label().classes("text-xs text-slate-300")
+        ui.button("Switch tournament", on_click=switch_tournament).props("dense flat")
     return status
 
 
 async def run_page(session: Session, active: PageInfo, build_content: PageBuilder) -> None:
-    header = ui.header().classes("items-center gap-4 bg-slate-800 text-white")
-    body = ui.column().classes("w-full")
+    header = ui.header().classes("items-center gap-2 bg-slate-800 px-2 py-1 text-white")
+    body = ui.column().classes("w-full gap-2 p-2")
     shown = {"stage": None, "status": None, "refresh": None}
 
     async def render_stage():
@@ -50,7 +50,7 @@ async def run_page(session: Session, active: PageInfo, build_content: PageBuilde
                 shown["refresh"] = build_content(session)
             return
         with header:
-            ui.label("Speechwire Live").classes("text-lg font-medium")
+            ui.label("Speechwire Live").classes("text-sm font-medium")
         with body:
             if stage == "tournament":
                 await build_tournament_picker(session)

@@ -10,17 +10,19 @@ from .ballot_rows import SlotTable, split_into_slot_tables
 def _column_defs() -> list[dict]:
     return [
         {"field": "Section", "width": 90},
-        {"field": "Rm", "width": 80},
-        {"field": "Judge", "flex": 1, "minWidth": 160},
+        {"field": "Rm", "width": 40},
+        {"field": "Judge", "width": 80},
         # One-line snippet: the grid uses the colors Python computed for each row's status.
-        {"field": "Status", "width": 140, ":cellStyle": "params => params.data.statusStyle"},
+        {"field": "Status", "width": 62, ":cellStyle": "params => params.data.statusStyle"},
     ]
 
 
 def build_balloting(session: Session) -> Callable[[], None]:
     poller = session.poller
     waiting = ui.label("Waiting for ballot status data...").classes("text-slate-500")
-    container = ui.row().classes("w-full items-start gap-4")
+    container = ui.row().classes(
+        "w-full flex-nowrap items-start gap-2 overflow-x-auto overflow-y-hidden"
+    )
     grids: dict[int, ui.aggrid] = {}
     shown = {"version": 0, "keys": None}
 
@@ -29,15 +31,25 @@ def build_balloting(session: Session) -> Callable[[], None]:
         grids.clear()
         with container:
             for table in tables:
-                with ui.card().style("width: 34rem"):
-                    ui.label(f"Slot {table.slot}").classes("text-lg font-medium")
+                with ui.card().classes(
+                    "shrink-0 gap-1 rounded border p-2 shadow-none"
+                ).style("width: 19rem"):
+                    ui.label(f"Slot {table.slot}").classes("text-sm font-medium")
                     if table.title:
                         ui.label(table.title).classes("text-xs text-slate-500")
                     grids[table.slot] = ui.aggrid(
                         {
                             "columnDefs": _column_defs(),
                             "rowData": table.rows,
-                            "defaultColDef": {"sortable": True, "resizable": True, "filter": True},
+                            "rowHeight": 18,
+                            "headerHeight": 22,
+                            "defaultColDef": {
+                                "sortable": True,
+                                "resizable": True,
+                                "filter": True,
+                                "cellStyle": {"fontSize": "11px", "padding": "0 2px"},
+                                "headerStyle": {"fontSize": "11px", "padding": "0 2px"},
+                            },
                             "domLayout": "autoHeight",
                         },
                         auto_size_columns=False,

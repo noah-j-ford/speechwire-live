@@ -37,6 +37,16 @@ class ParsePageTests(unittest.TestCase):
     def test_header_may_be_th_or_td_cells(self):
         self.assertEqual(len(parse_page(page(ROWS, header_tag="td")).rows), 2)
 
+    def test_room_header_in_a_data_row_is_recognized(self):
+        header = "<tr><td>Section</td><td>Room</td><td>Judge</td><td>Status</td></tr>"
+        data = "".join(
+            "<tr>" + "".join(f"<td>{cell}</td>" for cell in row) + "</tr>" for row in ROWS
+        )
+        html = f"<html><body><table>{header}{data}</table></body></html>"
+        result = parse_page(html)
+        self.assertEqual(len(result.rows), 2)
+        self.assertEqual(result.rows[0][1], "101")
+
     def test_page_without_a_table_returns_none(self):
         self.assertIsNone(parse_page(NO_TABLE))
         self.assertIsNone(parse_page(""))

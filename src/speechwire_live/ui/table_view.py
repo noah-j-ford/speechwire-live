@@ -12,14 +12,23 @@ class TableView:
             {
                 "columnDefs": [self._column_def(name) for name in dataset.columns],
                 "rowData": [],
-                "defaultColDef": {"sortable": True, "resizable": True, "floatingFilter": True},
+                "rowHeight": 18,
+                "headerHeight": 22,
+                "floatingFiltersHeight": 18,
+                "defaultColDef": {
+                    "sortable": True,
+                    "resizable": True,
+                    "floatingFilter": True,
+                    "cellStyle": {"fontSize": "11px", "padding": "0 2px"},
+                    "headerStyle": {"fontSize": "11px", "padding": "0 2px"},
+                },
                 # Column names such as "Spkr Pos." contain dots, which AG Grid would read as paths.
                 "suppressFieldDotNotation": True,
                 "enableCellTextSelection": True,
                 "ensureDomOrder": True,
             },
             auto_size_columns=False,
-        ).style("height: calc(100vh - 170px)")
+        ).style("height: calc(100vh - 125px)")
 
     def _column_def(self, name: str) -> dict:
         numeric = name in self._dataset.numeric_columns

@@ -24,7 +24,7 @@ def build_times(session: Session) -> Callable[[], None]:
         if event.value:
             poller.set_interval(event.value)
 
-    with ui.row().classes("w-full items-center gap-4"):
+    with ui.row().classes("w-full items-center gap-2"):
         ui.number(
             "Refresh every (seconds)",
             value=poller.interval_seconds,
@@ -32,10 +32,10 @@ def build_times(session: Session) -> Callable[[], None]:
             step=15,
             format="%d",
             on_change=interval_changed,
-        ).props("dense outlined").classes("w-48")
-        ui.button("Refresh now", on_click=poller.refresh_now).props("outline no-caps")
-        ui.button("Save .xlsx", on_click=save_clicked).props("outline no-caps")
-        row_count = ui.label().classes("text-sm text-slate-500")
+        ).props("dense outlined").classes("w-40")
+        ui.button("Refresh now", on_click=poller.refresh_now).props("dense outline no-caps")
+        ui.button("Save .xlsx", on_click=save_clicked).props("dense outline no-caps")
+        row_count = ui.label().classes("text-xs text-slate-500")
 
     view = TableView(times)
 

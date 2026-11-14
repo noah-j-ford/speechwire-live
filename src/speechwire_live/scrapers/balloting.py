@@ -13,6 +13,7 @@ SLOT_IDS = range(1, 30)
 # once it is paired is found within a few polls.
 FULL_RESCAN_EVERY = 3
 HEADER = ["Section", "Rm", "Judge", "Status"]
+HEADER_LABELS = {tuple(HEADER), ("Section", "Room", "Judge", "Status")}
 COLUMNS = ["Slot", "Title", *HEADER]
 MAX_HEADING_LENGTH = 120
 
@@ -54,7 +55,9 @@ def parse_page(html: str) -> SlotPage | None:
     ]
     if not rows:
         return SlotPage(_heading(document), [])
-    header_index = next((i for i, row in enumerate(rows) if row == HEADER), None)
+    header_index = next(
+        (i for i, row in enumerate(rows) if tuple(row) in HEADER_LABELS), None
+    )
     if header_index is None:
         raise ValueError(f"Unexpected ballot status table header: {rows[0]}")
     data = [row for row in rows[header_index + 1:] if len(row) == len(HEADER)]
