@@ -25,6 +25,7 @@ class Poller:
         self._interval = max(MIN_INTERVAL_SECONDS, int(interval_seconds))
         self._snapshots: dict[str, Snapshot] = {}
         self._status = "Starting..."
+        self._last_scraped_at: datetime | None = None
         self._stop = threading.Event()
         self._wake = threading.Event()
         self._thread = threading.Thread(target=self._run, daemon=True)
@@ -32,6 +33,10 @@ class Poller:
     @property
     def status(self) -> str:
         return self._status
+
+    @property
+    def last_scraped_at(self) -> datetime | None:
+        return self._last_scraped_at
 
     @property
     def interval_seconds(self) -> int:
@@ -80,11 +85,12 @@ class Poller:
             except Exception as error:
                 errors.append(f"{dataset.title}: {type(error).__name__}: {error}")
 
+        self._last_scraped_at = datetime.now()
         if errors:
             self._status = f"Error: {'; '.join(errors)} - will retry"
             return True
         elapsed = time.monotonic() - started
-        self._status = f"Updated {datetime.now():%H:%M:%S} (scrape took {elapsed:.0f}s)"
+        self._status = f"Updated {self._last_scraped_at:%H:%M:%S} (scrape took {elapsed:.0f}s)"
         if not changed:
             self._status += " - no changes"
         return False

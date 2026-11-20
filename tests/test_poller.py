@@ -1,5 +1,6 @@
 import time
 import unittest
+from datetime import datetime
 
 import pandas as pd
 
@@ -42,6 +43,7 @@ class ScrapeTests(unittest.TestCase):
         poller = Poller(lambda: object(), [dataset], 60)
         self.assertFalse(poller._poll_once(None))
         self.assertEqual(poller.snapshot("t").version, 1)
+        self.assertIsInstance(poller.last_scraped_at, datetime)
         self.assertFalse(poller._poll_once(None))
         self.assertEqual(poller.snapshot("t").version, 1)
         self.assertIn("no changes", poller.status)
@@ -66,6 +68,7 @@ class ScrapeTests(unittest.TestCase):
         self.assertIsNone(poller.snapshot("bad"))
         self.assertTrue(poller.status.startswith("Error"))
         self.assertIn("Broken data: RuntimeError: boom", poller.status)
+        self.assertIsInstance(poller.last_scraped_at, datetime)
 
     def test_interval_has_a_floor(self):
         poller = Poller(lambda: object(), [], 1)

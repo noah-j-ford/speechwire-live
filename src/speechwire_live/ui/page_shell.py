@@ -20,6 +20,14 @@ def _build_nav_header(session: Session, header, active: PageInfo):
             ui.notify(f"Saved {path}")
         session.end()
 
+    with ui.dialog() as error_dialog, ui.card().style(
+        "max-width: 80vw; max-height: 80vh; overflow-y: auto"
+    ):
+        ui.label("Full scrape error").classes("text-lg font-medium")
+        error_details = ui.label().style(
+            "white-space: pre-wrap; overflow-wrap: anywhere"
+        )
+
     with header:
         ui.label(session.tournament.name).classes("text-sm font-medium")
         for page in (HOME, *FEATURES):
@@ -27,9 +35,17 @@ def _build_nav_header(session: Session, header, active: PageInfo):
             if page == active:
                 button.classes("bg-slate-600")
         ui.space()
-        status = ui.label().classes("text-xs text-slate-300")
+        status = ui.label().classes("text-xs text-slate-300").style(
+            "max-width: 14rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap"
+        )
+        error_button = ui.button("Error", on_click=error_dialog.open).props(
+            "dense flat no-caps"
+        ).classes("text-red-300")
+        error_button.visible = False
+        error_button.tooltip("Click to view the full error")
+        last_scraped = ui.label("Last Scraped: —").classes("text-xs text-slate-300")
         ui.button("Switch tournament", on_click=switch_tournament).props("dense flat")
-    return status
+    return status, error_button, error_details, last_scraped
 
 
 async def run_page(session: Session, active: PageInfo, build_content: PageBuilder) -> None:
@@ -60,7 +76,19 @@ async def run_page(session: Session, active: PageInfo, build_content: PageBuilde
     def refresh():
         poller = session.poller
         if shown["status"] is not None and poller is not None:
-            shown["status"].text = poller.status
+            status, error_button, error_details, last_scraped = shown["status"]
+            if poller.status.startswith("Error:"):
+                status.visible = False
+                error_button.visible = True
+                error_details.text = poller.status
+            else:
+                status.visible = True
+                error_button.visible = False
+                status.text = poller.status
+            timestamp = poller.last_scraped_at
+            last_scraped.text = (
+                f"Last Scraped: {timestamp:%H:%M:%S}" if timestamp else "Last Scraped: —"
+            )
         if shown["refresh"]:
             shown["refresh"]()
 
